@@ -34,7 +34,11 @@ try:
     import urllib2, urllib
 except ModuleNotFoundError:
     import requests
-import urlparse
+try:
+    import urlparse
+except ModuleNotFoundError:
+    import urllib.parse as urlparse
+
 import hashlib
 from django.utils import translation
 from Crypto.Cipher import DES3
