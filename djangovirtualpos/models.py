@@ -10,7 +10,10 @@ import cgi
 # Sistema de depuración
 
 from bs4 import BeautifulSoup
-from .debug import dlprint
+try:
+    from debug import dlprint
+except ModuleNotFoundError:
+    from .debug import dlprint
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.db import models
@@ -22,9 +25,15 @@ from django.http import HttpResponse
 from django.utils import timezone
 
 from django.shortcuts import redirect
-from django.urls import reverse
+try:
+    from django.core.urlresolvers import reverse
+except ModuleNotFoundError:
+    from django.urls import reverse
 import random
-import urllib2, urllib
+try:
+    import urllib2, urllib
+except ModuleNotFoundError:
+    import requests
 import urlparse
 import hashlib
 from django.utils import translation
@@ -2743,10 +2752,14 @@ class VPOSPaypal(VirtualPointOfSale):
         dlprint("Recogemos los datos")
         dlprint(data)
         # Enviamos la petición HTTP POST
-        request = urllib2.Request(token_url, data)
-        # Recogemos la respuesta dada, que vendrá en texto plano
-        response = urllib2.urlopen(request)
-        res_string = response.read()
+        try:
+            request = urllib2.Request(token_url, data)
+            # Recogemos la respuesta dada, que vendrá en texto plano
+            response = urllib2.urlopen(request)
+            res_string = response.read()
+        except:
+            response = requests.get (token_url, data=data)
+            res_string = response.text
 
         dlprint("Paypal responde")
         dlprint("Respuesta PayPal: " + res_string)
@@ -2858,11 +2871,16 @@ class VPOSPaypal(VirtualPointOfSale):
         data = urllib.urlencode(query_args)
         # Realizamos una petición HTTP POST
         api_url = self.paypal_url[self.parent.environment]["api"]
-        request = urllib2.Request(api_url, data)
 
-        # Almacenamos la respuesta dada por PayPal
-        response = urllib2.urlopen(request)
-        res_string = response.read()
+        try:
+            request = urllib2.Request(api_url, data)
+            # Almacenamos la respuesta dada por PayPal
+            response = urllib2.urlopen(request)
+            res_string = response.read()
+        except:
+            response = requests.get (api_url, data=data)
+            res_string = response.text
+        
         res = urlparse.parse_qs(res_string)
 
         # Comprobamos que haya un ACK y que no tenga el valor de "Failure"
