@@ -22,7 +22,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 
 from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 import random
 import urllib2, urllib
 import urlparse
