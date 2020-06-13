@@ -10,7 +10,7 @@ import cgi
 # Sistema de depuración
 
 from bs4 import BeautifulSoup
-from debug import dlprint
+from .debug import dlprint
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.db import models
