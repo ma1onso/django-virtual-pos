@@ -273,9 +273,6 @@ class VirtualPointOfSale(models.Model):
         ordering = ['name']
         verbose_name = "virtual point of sale"
         verbose_name_plural = "virtual points of sale"
-        permissions = (
-            ("view_virtualpointofsale", "View Virtual Points of Sale"),
-        )
 
     def __unicode__(self):
         return self.name
