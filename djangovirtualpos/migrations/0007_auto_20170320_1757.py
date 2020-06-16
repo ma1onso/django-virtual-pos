@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 from django.db import migrations, models
 
 
@@ -19,6 +20,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='vpospaymentoperation',
             name='virtual_point_of_sale',
-            field=models.ForeignKey(parent_link=True, related_name='payment_operations', to='djangovirtualpos.VirtualPointOfSale'),
+            field=models.ForeignKey(parent_link=True, related_name='payment_operations', to='djangovirtualpos.VirtualPointOfSale', on_delete=django.db.models.deletion.CASCADE),
         ),
     ]
