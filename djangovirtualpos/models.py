@@ -1759,7 +1759,11 @@ class VPOSRedsys(VirtualPointOfSale):
                 order_data["DS_MERCHANT_IDENTIFIER"] = reference_number
 
         json_order_data = json.dumps(order_data)
-        packed_order_data = base64.b64encode(json_order_data)
+
+        try:
+            packed_order_data = base64.b64encode(json_order_data)
+        except TypeError:
+            packed_order_data = base64.b64encode(bytes(json_order_data.encode()))
 
         data = {
             "Ds_SignatureVersion": "HMAC_SHA256_V1",
