@@ -2557,7 +2557,7 @@ class VPOSRedsys(VirtualPointOfSale):
             dlprint(
                 "_redsys_hmac_sha256_signature: la longitud del operation number es {0} y necesita relleno para 3DES".format(
                     len(operation_number)))
-            operation_number += bytes("\x00") * (8 - len(self.parent.operation.operation_number) % 8)
+            operation_number += bytes("\x00".encode()) * (8 - len(self.parent.operation.operation_number) % 8)
             dlprint("_redsys_hmac_sha256_signature: la longitud de la cadena rellenada para 3DES es de {0}".format(
                 len(operation_number)))
 
