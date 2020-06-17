@@ -77,9 +77,13 @@ def set_payment_attributes(request, sale_model, sale_ok_url, sale_nok_url, refer
 
     # Debug message
     form_data["message"] = "Payment {0} updated. Returning payment attributes.".format(payment_code)
-    print(form_data)
+
+    # TODO: move (hotfix)
+    form_data['data']['Ds_MerchantParameters'] = form_data['data']['Ds_MerchantParameters'].decode('utf-8')
+    form_data['data']['Ds_Signature'] = form_data['data']['Ds_Signature'].decode('utf-8')
+
     # Return JSON response
-    return JsonResponse(form_data.decode("utf-8"))
+    return JsonResponse(form_data)
 
 
 # Confirm sale
