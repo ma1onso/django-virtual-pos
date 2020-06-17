@@ -13,8 +13,11 @@ import logging
 def _prepare_debuglog_message(message, caller_level=2):
     # Por si acaso se le mete una cadena de tipo str,
     # este módulo es capaz de detectar eso y convertirla a UTF8
-    if type(message) == str:
-        message = unicode(message, "UTF-8")
+    try:
+        if type(message) == str:
+            message = unicode(message, "UTF-8")
+    except NameError:
+        pass
 
     # Hora
     now = timezone.now()

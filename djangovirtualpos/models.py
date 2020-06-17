@@ -339,9 +339,16 @@ class VirtualPointOfSale(models.Model):
 
         try:
             self.delegated = delegated_class.objects.get(parent_id=self.id)
-        except delegated_class.DoesNotExist as e:
+        except delegated_class.DoesNotExist as exception:
+
+            try:
+                exception = unicode(exception)
+            except NameError:
+                pass
+
             raise ValueError(
-                unicode(e) + u" No existe ningún vpos del tipo {0} con el identificador {1}".format(self.type, self.id))
+                exception + u" No existe ningún vpos del tipo {0} con el identificador {1}".format(self.type, self.id)
+            )
 
         # Necesito los datos dinámicos de mi padre, que es un objeto de
         # la clase Tpv, si usásemos directamente desde el delegated
@@ -749,7 +756,11 @@ class VPOSCeca(VirtualPointOfSale):
 
     @classmethod
     def form(cls):
-        from forms import VPOSCecaForm
+        try:
+            from forms import VPOSCecaForm
+        except ImportError:
+            from .forms import VPOSCecaForm
+
         return VPOSCecaForm
 
     ####################################################################
@@ -1630,7 +1641,11 @@ class VPOSRedsys(VirtualPointOfSale):
 
     @classmethod
     def form(cls):
-        from forms import VPOSRedsysForm
+        try:
+            from forms import VPOSRedsysForm
+        except ImportError:
+            from .forms import VPOSRedsysForm
+
         return VPOSRedsysForm
 
     ####################################################################
@@ -2691,7 +2706,11 @@ class VPOSPaypal(VirtualPointOfSale):
 
     @classmethod
     def form(cls):
-        from forms import VPOSPaypalForm
+        try:
+            from forms import VPOSPaypalForm
+        except ImportError:
+            from .forms import VPOSPaypalForm
+
         return VPOSPaypalForm
 
     ####################################################################
@@ -2719,10 +2738,18 @@ class VPOSPaypal(VirtualPointOfSale):
 
         dlprint("El operation number no existía")
         token_url = self.paypal_url[self.parent.environment][self.endpoint]
-        dlprint("Attribute paypal_url " + unicode(self.paypal_url))
+        try:
+            dlprint("Attribute paypal_url " + unicode(self.paypal_url))
+        except NameError:
+            dlprint("Attribute paypal_url " + self.paypal_url)
         dlprint("Endpoint {0}".format(self.endpoint))
         dlprint("Enviroment {0}".format(self.parent.environment))
         dlprint("URL de envío {0}".format(token_url))
+
+        try:
+            sale_description = unicode(self.parent.operation.description).encode('utf-8')
+        except NameError:
+            sale_description = self.parent.operation.description
 
         # Preparamos los campos del formulario
         query_args = {
@@ -2747,7 +2774,7 @@ class VPOSPaypal(VirtualPointOfSale):
             # Especifíca la acción
             "PAYMENTREQUEST_0_PAYMENTACTION": self.PaymentRequest_0_PaymentAction,
             # Especifica la descripción de la venta
-            "L_PAYMENTREQUEST_0_NAME0": unicode(self.parent.operation.description).encode('utf-8'),
+            "L_PAYMENTREQUEST_0_NAME0": sale_description,
             # Especifica el importe final de la venta
             "L_PAYMENTREQUEST_0_AMT0": self.parent.operation.amount
         }
@@ -3023,7 +3050,11 @@ class VPOSSantanderElavon(VirtualPointOfSale):
 
     @classmethod
     def form(cls):
-        from forms import VPOSSantanderElavonForm
+        try:
+            from forms import VPOSSantanderElavonForm
+        except ImportError:
+            from .forms import VPOSSantanderElavonForm
+
         return VPOSSantanderElavonForm
 
     ####################################################################

@@ -7,7 +7,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 
 
-from views import confirm_payment
+try:
+    from views import confirm_payment
+except ImportError:
+    from .views import confirm_payment
 
 urlpatterns = [
     url(r'^confirm/$', confirm_payment, name="confirm_payment")
