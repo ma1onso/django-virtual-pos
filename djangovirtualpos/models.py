@@ -840,9 +840,9 @@ class VPOSCeca(VirtualPointOfSale):
 
         # Almacén de operaciones
         try:
-            operation = VPOSPaymentOperation.objects.get(operation_number=request.POST.get("Num_operacion"))
-            operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.POST.dict()}
-            operation.confirmation_code = request.POST.get("Referencia")
+            operation = VPOSPaymentOperation.objects.get(operation_number=request.data.get("Num_operacion"))
+            operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.data.dict()}
+            operation.confirmation_code = request.data.get("Referencia")
             operation.save()
             dlprint("Operation {0} actualizada en receiveConfirmation()".format(operation.operation_number))
             vpos = operation.virtual_point_of_sale
@@ -865,34 +865,34 @@ class VPOSCeca(VirtualPointOfSale):
         # Iniciamos los valores recibidos en el delegado
 
         # Identifica al comercio
-        vpos.delegated.merchant_id = request.POST.get("MerchantID")
+        vpos.delegated.merchant_id = request.data.get("MerchantID")
         # Identifica a la caja
-        vpos.delegated.acquirer_bin = request.POST.get("AcquirerBIN")
+        vpos.delegated.acquirer_bin = request.data.get("AcquirerBIN")
         # Identifica al terminal
-        vpos.delegated.terminal_id = request.POST.get("TerminalID")
+        vpos.delegated.terminal_id = request.data.get("TerminalID")
         # Identifica el número de pedido, factura, albarán, etc
-        vpos.delegated.num_operacion = request.POST.get("Num_operacion")
+        vpos.delegated.num_operacion = request.data.get("Num_operacion")
         # Importe de la operación sin formatear
-        vpos.delegated.importe = request.POST.get("Importe")
+        vpos.delegated.importe = request.data.get("Importe")
         # Corresponde a la moneda en la que se efectúa el pago
-        vpos.delegated.tipo_moneda = request.POST.get("TipoMoneda")
+        vpos.delegated.tipo_moneda = request.data.get("TipoMoneda")
         # Actualmente siempre será 2
-        vpos.delegated.exponente = request.POST.get("Exponente")
+        vpos.delegated.exponente = request.data.get("Exponente")
         # Idioma de la operación
-        vpos.delegated.idioma = request.POST.get("Idioma")
+        vpos.delegated.idioma = request.data.get("Idioma")
         # Código ISO del país de la tarjeta que ha realizado la operación
-        vpos.delegated.pais = request.POST.get("Pais")
+        vpos.delegated.pais = request.data.get("Pais")
         # Los 200 primeros caracteres de la operación
-        vpos.delegated.descripcion = request.POST.get("Descripcion")
+        vpos.delegated.descripcion = request.data.get("Descripcion")
         # Valor único devuelto por la pasarela. Imprescindible para realizar cualquier tipo de reclamación y/o anulación
-        vpos.delegated.referencia = request.POST.get("Referencia")
+        vpos.delegated.referencia = request.data.get("Referencia")
         # Valor asignado por la entidad emisora a la hora de autorizar una operación
-        vpos.delegated.num_aut = request.POST.get("Num_aut")
+        vpos.delegated.num_aut = request.data.get("Num_aut")
         # Es una cadena de caracteres calculada por CECA firmada por SHA1
-        vpos.delegated.firma = request.POST.get("Firma")
+        vpos.delegated.firma = request.data.get("Firma")
 
         dlprint(u"Lo que recibimos de CECA: ")
-        dlprint(request.POST)
+        dlprint(request.data)
         return vpos.delegated
 
     ####################################################################
@@ -1767,7 +1767,7 @@ class VPOSRedsys(VirtualPointOfSale):
     @classmethod
     def receiveConfirmation(cls, request):
         # Es una respuesta HTTP POST "normal"
-        if 'Ds_MerchantParameters' in request.POST:
+        if 'Ds_MerchantParameters' in request.data:
             return cls._receiveConfirmationHTTPPOST(request)
 
         # Es una respuesta SOAP
@@ -1782,11 +1782,11 @@ class VPOSRedsys(VirtualPointOfSale):
     @staticmethod
     def _receiveConfirmationHTTPPOST(request):
         dlprint(u"Notificación Redsys HTTP POST:")
-        dlprint(request.POST)
+        dlprint(request.data)
 
         # Almacén de operaciones
         try:
-            operation_data = json.loads(base64.b64decode(request.POST.get("Ds_MerchantParameters")))
+            operation_data = json.loads(base64.b64decode(request.data.get("Ds_MerchantParameters")))
             dlprint(operation_data)
 
             # Operation number
@@ -1805,7 +1805,7 @@ class VPOSRedsys(VirtualPointOfSale):
                 if operation.status != "pending":
                     raise VPOSOperationAlreadyConfirmed(u"Operación ya confirmada")
 
-                operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.POST.dict()}
+                operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.data.dict()}
                 operation.confirmation_code = operation_number
 
                 ds_errorcode = operation_data.get("Ds_ErrorCode")
@@ -1842,13 +1842,13 @@ class VPOSRedsys(VirtualPointOfSale):
 
         ## Datos que llegan por POST
         # Firma enviada por RedSys, que más tarde compararemos con la generada por el comercio
-        vpos.delegated.firma = request.POST.get("Ds_Signature")
+        vpos.delegated.firma = request.data.get("Ds_Signature")
 
         # Versión del método de firma utilizado
-        vpos.delegated.signature_version = request.POST.get("Ds_SignatureVersion")
+        vpos.delegated.signature_version = request.data.get("Ds_SignatureVersion")
 
         # Parámetros de la operación (en base64 + JSON)
-        vpos.delegated.merchant_parameters = request.POST.get("Ds_MerchantParameters")
+        vpos.delegated.merchant_parameters = request.data.get("Ds_MerchantParameters")
 
         ## Datos decodificados de Ds_MerchantParameters
         # Respuesta de la pasarela de pagos. Indica si la operación se autoriza o no
@@ -2814,8 +2814,8 @@ class VPOSPaypal(VirtualPointOfSale):
         # Almacén de operaciones
         try:
             operation = VPOSPaymentOperation.objects.get(operation_number=request.GET.get("token"))
-            operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.POST.dict()}
-            operation.confirmation_code = request.POST.get("token")
+            operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.data.dict()}
+            operation.confirmation_code = request.data.get("token")
             operation.save()
             dlprint("Operation {0} actualizada en receiveConfirmation()".format(operation.operation_number))
             vpos = operation.virtual_point_of_sale
@@ -3107,14 +3107,14 @@ class VPOSSantanderElavon(VirtualPointOfSale):
 
         # Almacén de operaciones
         try:
-            operation = VPOSPaymentOperation.objects.get(operation_number=request.POST.get("ORDER_ID"))
-            operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.POST.dict()}
+            operation = VPOSPaymentOperation.objects.get(operation_number=request.data.get("ORDER_ID"))
+            operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.data.dict()}
 
             # en charge() nos harán falta tanto el AUTHCODE PASREF, por eso se meten los dos en el campo
             # operation.confirmation_code, separados por el carácter ":"
             operation.confirmation_code = "{pasref}:{authcode}".format(
-                pasref=request.POST.get("PASREF"),
-                authcode=request.POST.get("AUTHCODE")
+                pasref=request.data.get("PASREF"),
+                authcode=request.data.get("AUTHCODE")
             )
 
             operation.save()
@@ -3133,22 +3133,22 @@ class VPOSSantanderElavon(VirtualPointOfSale):
         # Iniciamos los valores recibidos en el delegado, para el cálculo de la firma
 
         # Marca de tiempo de la solicitud enviada a la pasarela
-        vpos.delegated.timestamp = request.POST.get("TIMESTAMP")
+        vpos.delegated.timestamp = request.data.get("TIMESTAMP")
         # Identifica al comercio
-        vpos.delegated.merchant_id = request.POST.get("MERCHANT_ID")
+        vpos.delegated.merchant_id = request.data.get("MERCHANT_ID")
         # Identifica el número de pedido, factura, albarán, etc
-        vpos.delegated.order_id = request.POST.get("ORDER_ID")
+        vpos.delegated.order_id = request.data.get("ORDER_ID")
         # Resultado de la operación
-        vpos.delegated.result = request.POST.get("RESULT")
+        vpos.delegated.result = request.data.get("RESULT")
         # Mensaje textual del resultado de la operación
-        vpos.delegated.message = request.POST.get("MESSAGE", "")
+        vpos.delegated.message = request.data.get("MESSAGE", "")
         dlprint("type(message): {0}".format(type(vpos.delegated.message)))
         # Referencia asignada por el TPV
-        vpos.delegated.pasref = request.POST.get("PASREF")
+        vpos.delegated.pasref = request.data.get("PASREF")
         # Código de autorización de la operación
-        vpos.delegated.authcode = request.POST.get("AUTHCODE")
+        vpos.delegated.authcode = request.data.get("AUTHCODE")
         # Firma enviada por la pasarela de pagos
-        vpos.delegated.sha1hash = request.POST.get("SHA1HASH")
+        vpos.delegated.sha1hash = request.data.get("SHA1HASH")
 
         # URLs para charge()
         vpos.delegated.url = {
@@ -3157,7 +3157,7 @@ class VPOSSantanderElavon(VirtualPointOfSale):
         }
 
         dlprint(u"Response Santander Elavon redirect: ")
-        dlprint(request.POST)
+        dlprint(request.data)
         return vpos.delegated
 
     ####################################################################
@@ -3596,7 +3596,7 @@ class VPOSBitpay(VirtualPointOfSale):
             if operation.status != "pending":
                 raise VPOSOperationAlreadyConfirmed(u"Operación ya confirmada")
 
-            operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.POST.dict(), "BODY": confirmation_body_param}
+            operation.confirmation_data = {"GET": request.GET.dict(), "POST": request.data.dict(), "BODY": confirmation_body_param}
             operation.save()
 
             dlprint("Operation {0} actualizada en receiveConfirmation()".format(operation.operation_number))

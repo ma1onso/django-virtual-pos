@@ -29,9 +29,9 @@ def set_payment_attributes(request, sale_model, sale_ok_url, sale_nok_url, refer
     # Getting the VPOS and the Sale
     try:
         # Getting the VirtualPointOfSale object
-        virtual_point_of_sale = VirtualPointOfSale.get(id=request.POST["vpos_id"], is_erased=False)
+        virtual_point_of_sale = VirtualPointOfSale.get(id=request.data["vpos_id"], is_erased=False)
         # Getting Sale object
-        payment_code = request.POST["payment_code"]
+        payment_code = request.data["payment_code"]
         sale = sale_model.objects.get(code=payment_code, status="pending")
         sale.virtual_point_of_sale = virtual_point_of_sale
         sale.save()
