@@ -2549,7 +2549,7 @@ class VPOSRedsys(VirtualPointOfSale):
         encryption_key = base64.b64decode(self.encryption_key)
 
         # operation_number = bytes(self.parent.operation.operation_number)
-        operation_number = bytes(self.parent.operation.operation_number)
+        operation_number = bytes(self.parent.operation.operation_number.encode())
         dlprint("_redsys_hmac_sha256_signature: operation_number {0}".format(operation_number))
 
         # Rellenar cadena hasta múltiplo de 8 bytes
