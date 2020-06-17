@@ -77,9 +77,9 @@ def set_payment_attributes(request, sale_model, sale_ok_url, sale_nok_url, refer
 
     # Debug message
     form_data["message"] = "Payment {0} updated. Returning payment attributes.".format(payment_code)
-
+    print(form_data)
     # Return JSON response
-    return JsonResponse(form_data)
+    return JsonResponse(form_data.decode("utf-8"))
 
 
 # Confirm sale
