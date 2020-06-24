@@ -6,7 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from djangovirtualpos.models import VirtualPointOfSale, VPOSCantCharge
 
@@ -50,8 +49,8 @@ def set_payment_attributes(request, sale_model, sale_ok_url, sale_nok_url, refer
         # Sale code
         sale_code=sale.code,
         # Return URLs
-        url_ok=request.build_absolute_uri(reverse(sale_ok_url, kwargs={"sale_code": sale.code})),
-        url_nok=request.build_absolute_uri(reverse(sale_nok_url, kwargs={"sale_code": sale.code})),
+        url_ok=sale_ok_url,
+        url_nok=sale_nok_url,
     )
 
     # Operation number assignment. This operation number depends on the
