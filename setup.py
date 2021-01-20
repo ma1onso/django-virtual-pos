@@ -45,7 +45,7 @@ PACKAGE = "djangovirtualpos"
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "django",
+    "django >= 1.11.0",
     "beautifulsoup4",
     "lxml",
     "pycrypto",
